@@ -76,6 +76,7 @@ def launch_setup(context, *args, **kwargs):
 
     depthai_prefix = get_package_share_directory("depthai_ros_driver")
     interbotix_prefix = get_package_share_directory("interbotix_xscobot_moveit")
+    perception_prefix = get_package_share_directory("interbotix_perception_modules")
 
     interbotix_moveit = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -94,11 +95,23 @@ def launch_setup(context, *args, **kwargs):
                           "parent_frame": "dx400/ee_gripper_link",
                           "cam_pos_z": str(0.1)}.items())
 
+    apriltag_detection = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(perception_prefix, 'launch',
+                         'armtag.launch.py')
+        ),
+        launch_arguments={"camera_color_topic": "/oak/rgb/image_raw",
+                          "camera_info_topic": "oak/rgb/camera_info",
+                          "arm_base_frame": "dx400/base_link",
+                          "arm_tag_frame": "dx400/ar_tag_link",
+                          "use_armtag_tuner_gui": "true"}.items())
+
 
 
     return [
        interbotix_moveit,
        spatial_rgbd,
+    #    apriltag_detection,
         # moveit_rviz_node,
         # xscobot_ros_control_launch_include,
         # xsarm_gz_classic_launch_include,

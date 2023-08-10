@@ -76,7 +76,7 @@ def launch_setup(context, *args, **kwargs):
 
     depthai_prefix = get_package_share_directory("depthai_ros_driver")
     interbotix_prefix = get_package_share_directory("interbotix_xscobot_moveit")
-    perception_prefix = get_package_share_directory("interbotix_perception_modules")
+    easy_handeye_prefix = get_package_share_directory("easy_handeye2")
     calibration_prefix = get_package_share_directory("hand_eye_calibration")
 
     interbotix_moveit = IncludeLaunchDescription(
@@ -85,7 +85,7 @@ def launch_setup(context, *args, **kwargs):
                          'xscobot_moveit.launch.py')
         ),
         launch_arguments={"robot_model": "dx400",
-                          "hardware_type": "fake"}.items())
+                          "hardware_type": "actual"}.items())
 
     spatial_rgbd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -106,12 +106,25 @@ def launch_setup(context, *args, **kwargs):
                           "camera_frame": "oak_rgb_camera_optical_frame"
                           }.items())
 
+    easy_handeye_calibration = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(easy_handeye_prefix, 'launch',
+                         'calibrate.launch.py')
+        ),
+        launch_arguments={"calibration_type": "eye_on_base",
+                          "name": "eob_cam1",
+                          "robot_base_frame": "dx400/base_link",
+                          "robot_effector_frame": "dx400/ee_gripper_link",
+                          "tracking_base_frame": "oak_rgb_camera_optical_frame",
+                          "tracking_marker_frame": "tag_5"}.items())
+
 
 
     return [
        interbotix_moveit,
        spatial_rgbd,
        apriltag_detection,
+       easy_handeye_calibration,
         # moveit_rviz_node,
         # xscobot_ros_control_launch_include,
         # xsarm_gz_classic_launch_include,

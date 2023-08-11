@@ -1,4 +1,4 @@
-# Copyright 2022 Trossen Robotics
+# Copyright 2023 Trossen Robotics
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -29,14 +29,7 @@
 import os
 
 from ament_index_python.packages import get_package_share_directory
-from interbotix_xs_modules.xs_common import (
-    get_interbotix_xscobot_models,
-)
-from interbotix_xs_modules.xs_launch import (
-    construct_interbotix_xscobot_semantic_robot_description_command,
-    declare_interbotix_xscobot_robot_description_launch_arguments,
-    determine_use_sim_time_param,
-)
+
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
@@ -74,6 +67,7 @@ def load_yaml(package_name, file_path):
 
 def launch_setup(context, *args, **kwargs):
 
+    calibration_launch_arg = LaunchConfiguration('calibrate')
     depthai_prefix = get_package_share_directory("depthai_ros_driver")
     interbotix_prefix = get_package_share_directory("interbotix_xscobot_moveit")
     easy_handeye_prefix = get_package_share_directory("easy_handeye2")
@@ -116,7 +110,11 @@ def launch_setup(context, *args, **kwargs):
                           "robot_base_frame": "dx400/base_link",
                           "robot_effector_frame": "dx400/ee_gripper_link",
                           "tracking_base_frame": "oak_rgb_camera_optical_frame",
-                          "tracking_marker_frame": "tag_5"}.items())
+                          "tracking_marker_frame": "tag_5"}.items(),
+        condition=LaunchConfigurationEquals(
+            launch_configuration_name='calibrate',
+            expected_value='true'
+            ))
 
 
 
@@ -125,13 +123,18 @@ def launch_setup(context, *args, **kwargs):
        spatial_rgbd,
        apriltag_detection,
        easy_handeye_calibration,
-        # moveit_rviz_node,
-        # xscobot_ros_control_launch_include,
-        # xsarm_gz_classic_launch_include,
+
     ]
 
 
 def generate_launch_description():
-    declared_arguments = []
+    declared_arguments = [
+        DeclareLaunchArgument(
+            'calibrate',
+            default_value='false',
+            choices=('true', 'false'),
+            description="Launches Hand-Eye Calibration",
+        )
+    ]
 
     return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])

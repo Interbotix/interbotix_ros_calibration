@@ -68,6 +68,8 @@ def load_yaml(package_name, file_path):
 def launch_setup(context, *args, **kwargs):
 
     calibration_launch_arg = LaunchConfiguration('calibrate')
+    calib_name_launch_arg = LaunchConfiguration('calib_name')
+
     depthai_prefix = get_package_share_directory("depthai_ros_driver")
     interbotix_prefix = get_package_share_directory("interbotix_xscobot_moveit")
     easy_handeye_prefix = get_package_share_directory("easy_handeye2")
@@ -96,7 +98,7 @@ def launch_setup(context, *args, **kwargs):
                          'apriltag_detector.launch.py')
         ),
         launch_arguments={"camera_color_topic": "/oak/rgb/image_raw",
-                          "camera_info_topic": "oak/rgb/camera_info",
+                          "camera_info_topic": "/oak/rgb/camera_info",
                           "camera_frame": "oak_rgb_camera_optical_frame"
                           }.items())
 
@@ -106,7 +108,7 @@ def launch_setup(context, *args, **kwargs):
                          'calibrate.launch.py')
         ),
         launch_arguments={"calibration_type": "eye_on_base",
-                          "name": "eob_cam1",
+                          "name": calib_name_launch_arg.perform(context),
                           "robot_base_frame": "dx400/base_link",
                           "robot_effector_frame": "dx400/ee_gripper_link",
                           "tracking_base_frame": "oak_rgb_camera_optical_frame",
@@ -134,6 +136,11 @@ def generate_launch_description():
             default_value='false',
             choices=('true', 'false'),
             description="Launches Hand-Eye Calibration",
+        ),
+        DeclareLaunchArgument(
+            'calib_name',
+            default_value='eob_cam1',
+            description="Name of the calibration values to save",
         )
     ]
 

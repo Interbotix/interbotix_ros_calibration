@@ -1,0 +1,24 @@
+/oak1:
+  ros__parameters:
+    camera:
+      i_mx_id: "184430103175341300"
+      i_nn_type: none
+    stereo:
+      i_subpixel: true
+
+/oak2:
+  ros__parameters:
+    camera:
+      i_mx_id: "184430106196980F00"
+      i_nn_type: none
+    stereo:
+      i_subpixel: true
+
+# /oak3:
+#   ros__parameters:
+#     camera:
+#       i_mx_id: "1844301001A47F0E00"
+#       i_nn_type: none
+#     stereo:
+#       i_subpixel: true
+

@@ -68,6 +68,12 @@ def load_yaml(package_name, file_path):
 def launch_setup(context, *args, **kwargs):
 
     calibration_launch_arg = LaunchConfiguration('calibrate')
+    evaluation_launch_arg = LaunchConfiguration('evaluate')
+    publish_launch_arg = LaunchConfiguration('publish')
+    camera1_name = LaunchConfiguration('cam1_name').perform(context)
+    camera2_name = LaunchConfiguration('cam2_name').perform(context)
+    camera3_name = LaunchConfiguration('cam3_name').perform(context)
+
     calib_name_launch_arg = LaunchConfiguration('calib_name')
 
     depthai_prefix = get_package_share_directory("depthai_ros_driver")
@@ -81,24 +87,47 @@ def launch_setup(context, *args, **kwargs):
                          'xscobot_moveit.launch.py')
         ),
         launch_arguments={"robot_model": "dx400",
-                          "hardware_type": "actual"}.items())
+                          "hardware_type": "fake"}.items())
 
-    spatial_rgbd = IncludeLaunchDescription(
+    spatial_rgbd1 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(depthai_prefix, 'launch',
                          'rgbd_pcl.launch.py')
         ),
-        launch_arguments={"name": "oak",
-                          "parent_frame": "dx400/ee_gripper_link",
+        launch_arguments={"name": camera1_name,
+                        #   "parent_frame": "dx400/ee_gripper_link",
+                          "params_file": PathJoinSubstitution([calibration_prefix, 'config', 'test.yaml']),
                           "cam_pos_z": str(0.1)}.items())
+
+    spatial_rgbd2 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(depthai_prefix, 'launch',
+                         'rgbd_pcl.launch.py')
+        ),
+        launch_arguments={"name": camera2_name,
+                        #   "parent_frame": "dx400/ee_gripper_link",
+                          "params_file": PathJoinSubstitution([calibration_prefix, 'config', 'test.yaml']),
+                          "cam_pos_z": str(-0.1)
+                          }.items())
+
+    spatial_rgbd3 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(depthai_prefix, 'launch',
+                         'rgbd_pcl.launch.py')
+        ),
+        launch_arguments={"name": camera3_name,
+                        #   "parent_frame": "dx400/ee_gripper_link",
+                          "params_file": PathJoinSubstitution([calibration_prefix, 'config', 'test.yaml']),
+                          "cam_pos_z": str(0.4)
+                          }.items())
 
     apriltag_detection = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(calibration_prefix, 'launch',
                          'apriltag_detector.launch.py')
         ),
-        launch_arguments={"camera_color_topic": "/oak/rgb/image_raw",
-                          "camera_info_topic": "/oak/rgb/camera_info",
+        launch_arguments={"camera_color_topic": "/"+camera1_name+"/rgb/image_raw",
+                          "camera_info_topic": "/"+camera1_name+"/rgb/camera_info",
                           "camera_frame": "oak_rgb_camera_optical_frame"
                           }.items())
 
@@ -118,13 +147,41 @@ def launch_setup(context, *args, **kwargs):
             expected_value='true'
             ))
 
+    easy_handeye_evaluation = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(easy_handeye_prefix, 'launch',
+                         'evaluate.launch.py')
+        ),
+        launch_arguments={"name": calib_name_launch_arg.
+                          perform(context)}.items(),
+        condition=LaunchConfigurationEquals(
+            launch_configuration_name='evaluate',
+            expected_value='true'
+            ))
+
+    easy_handeye_publish = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(easy_handeye_prefix, 'launch',
+                         'publish.launch.py')
+        ),
+        launch_arguments={"name": calib_name_launch_arg.
+                          perform(context)}.items(),
+        condition=LaunchConfigurationEquals(
+            launch_configuration_name='publish',
+            expected_value='true'
+            ))
+
 
 
     return [
-       interbotix_moveit,
-       spatial_rgbd,
-       apriltag_detection,
-       easy_handeye_calibration,
+    #    interbotix_moveit,
+       spatial_rgbd1,
+       spatial_rgbd2,
+    #    spatial_rgbd3,
+    #    apriltag_detection,
+    #    easy_handeye_calibration,
+    #    easy_handeye_evaluation,
+    #    easy_handeye_publish,
 
     ]
 
@@ -138,9 +195,36 @@ def generate_launch_description():
             description="Launches Hand-Eye Calibration",
         ),
         DeclareLaunchArgument(
+            'evaluate',
+            default_value='false',
+            choices=('true', 'false'),
+            description="Launches Hand-Eye Calibration Evaluation",
+        ),
+        DeclareLaunchArgument(
+            'publish',
+            default_value='false',
+            choices=('true', 'false'),
+            description="Publishes Hand-Eye Calibration values",
+        ),
+        DeclareLaunchArgument(
             'calib_name',
             default_value='eob_cam1',
             description="Name of the calibration values to save",
+        ),
+        DeclareLaunchArgument(
+            'cam1_name',
+            default_value='oak1',
+            description="Name of the camera",
+        ),
+        DeclareLaunchArgument(
+            'cam2_name',
+            default_value='oak2',
+            description="Name of the camera",
+        ),
+        DeclareLaunchArgument(
+            'cam3_name',
+            default_value='oak3',
+            description="Name of the camera",
         )
     ]
 

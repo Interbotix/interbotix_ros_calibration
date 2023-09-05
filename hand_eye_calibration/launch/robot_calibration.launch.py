@@ -96,7 +96,7 @@ def launch_setup(context, *args, **kwargs):
         ),
         launch_arguments={"name": camera1_name,
                         #   "parent_frame": "dx400/ee_gripper_link",
-                          "params_file": PathJoinSubstitution([calibration_prefix, 'config', 'test.yaml']),
+                          "params_file": PathJoinSubstitution([calibration_prefix, 'config', 'camera_config.yaml']),
                           "cam_pos_z": str(0.1)}.items())
 
     spatial_rgbd2 = IncludeLaunchDescription(
@@ -106,7 +106,7 @@ def launch_setup(context, *args, **kwargs):
         ),
         launch_arguments={"name": camera2_name,
                         #   "parent_frame": "dx400/ee_gripper_link",
-                          "params_file": PathJoinSubstitution([calibration_prefix, 'config', 'test.yaml']),
+                          "params_file": PathJoinSubstitution([calibration_prefix, 'config', 'camera_config.yaml']),
                           "cam_pos_z": str(-0.1)
                           }.items())
 
@@ -117,7 +117,7 @@ def launch_setup(context, *args, **kwargs):
         ),
         launch_arguments={"name": camera3_name,
                         #   "parent_frame": "dx400/ee_gripper_link",
-                          "params_file": PathJoinSubstitution([calibration_prefix, 'config', 'test.yaml']),
+                          "params_file": PathJoinSubstitution([calibration_prefix, 'config', 'camera_config.yaml']),
                           "cam_pos_z": str(0.4)
                           }.items())
 
@@ -174,12 +174,12 @@ def launch_setup(context, *args, **kwargs):
 
 
     return [
-    #    interbotix_moveit,
+       interbotix_moveit,
        spatial_rgbd1,
-       spatial_rgbd2,
+    #    spatial_rgbd2,
     #    spatial_rgbd3,
-    #    apriltag_detection,
-    #    easy_handeye_calibration,
+       apriltag_detection,
+       easy_handeye_calibration,
     #    easy_handeye_evaluation,
     #    easy_handeye_publish,
 
@@ -214,17 +214,17 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'cam1_name',
             default_value='oak1',
-            description="Name of the camera",
+            description="Name of camera 1",
         ),
         DeclareLaunchArgument(
             'cam2_name',
             default_value='oak2',
-            description="Name of the camera",
+            description="Name of camera 2",
         ),
         DeclareLaunchArgument(
             'cam3_name',
             default_value='oak3',
-            description="Name of the camera",
+            description="Name of camera 3",
         )
     ]
 

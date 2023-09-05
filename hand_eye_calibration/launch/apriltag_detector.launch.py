@@ -1,4 +1,4 @@
-# Copyright 2022 Trossen Robotics
+# Copyright 2023 Trossen Robotics
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -47,18 +47,6 @@ def launch_setup(context):
     camera_color_topic_launch_arg = LaunchConfiguration('camera_color_topic')
     camera_info_topic_launch_arg = LaunchConfiguration('camera_info_topic')
 
-    # apriltag_ros_single_image_detector_node = Node(
-    #     package='apriltag_ros',
-    #     executable='apriltag_ros_single_image_detector_node',
-    #     name='ar_tracker',
-    #     namespace=apriltag_ns_launch_arg.perform(context),
-    #     parameters=[
-    #         tags_config_launch_arg.perform(context),
-    #     ],
-    #     arguments=[
-    #         apriltag_ns_launch_arg.perform(context)
-    #     ],
-    # )
     remappings = [("~/image_rect", camera_color_topic_launch_arg),
                   ("~/camera_info", camera_info_topic_launch_arg)]
 
@@ -66,7 +54,6 @@ def launch_setup(context):
         package='apriltag_ros',
         executable='apriltag_ros_continuous_detector_node',
         name='ar_tracker',
-        # namespace=apriltag_ns_launch_arg.perform(context),
         parameters=[
             tags_config_launch_arg.perform(context),
             {"publish_tf":True}
@@ -95,9 +82,7 @@ def launch_setup(context):
     )
 
     return [
-        # apriltag_ros_single_image_detector_node,
         continuous_detector_node,
-        # picture_snapper_node,
     ]
 
 
@@ -130,7 +115,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'camera_info_topic',
             default_value='oak/rgb/camera_info',
-            description='the absolute ROS topic name to subscribe to the camera color info.',
+            description='the absolute ROS topic name to subscribe to the camera info.',
         ),
     ]
 

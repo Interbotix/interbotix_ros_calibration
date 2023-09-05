@@ -14,11 +14,11 @@
     stereo:
       i_subpixel: true
 
-# /oak3:
-#   ros__parameters:
-#     camera:
-#       i_mx_id: "1844301001A47F0E00"
-#       i_nn_type: none
-#     stereo:
-#       i_subpixel: true
+/oak3:
+  ros__parameters:
+    camera:
+      i_mx_id: "1844301001A47F0E00"
+      i_nn_type: none
+    stereo:
+      i_subpixel: true
 
